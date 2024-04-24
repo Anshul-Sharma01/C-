@@ -334,12 +334,357 @@ int sumK(Node* root, int k){
     return count; 
 }
 
+// Zig-zag traversal
+void zigZagTraversal(Node* root) {
+    if(root == NULL){
+        return;
+    }
+    queue < Node* > q;
+    q.push(root);
+    q.push(NULL);
+    bool leftToRight = false;
+    while(!q.empty()){
+        Node* temp = q.front();
+        q.pop();
+        if(temp == NULL){
+            cout << endl;
+            if(!q.empty()){
+                q.push(NULL);
+            }
+        }else{
+            
+            cout << temp -> data << " ";
+            if(leftToRight){
+                if(temp -> left){
+                    q.push(temp -> left);
+                }
+                if(temp -> right){
+                    q.push(temp -> right);
+                }
+            }else{
+                if(temp -> right){
+                    q.push(temp -> right);
+                }
+                if(temp -> left){
+                    q.push(temp -> left);
+                }
+            }
+        }
+        leftToRight = !leftToRight;
+    }
+}
+
+
+
+vector < int >  zigZagTraversalCorrect(Node* root){
+    vector < int > v1;
+    if(root == NULL){
+        return v1;
+    }
+
+    queue < Node* > q;
+    q.push(root);
+    bool leftToRight = true;
+    while(!q.empty()){
+        int size = q.size();
+        vector < int > v2(size);
+        for(int i = 0; i < size; i++){
+            Node* temp = q.front();
+            q.pop();
+
+            int ind = leftToRight ? i : size - 1 - i;
+            v2[ind] = temp -> data;
+
+            if(temp -> left){
+                q.push(temp -> left);
+            }
+            if(temp -> right){
+                q.push(temp -> right);
+            }
+        }
+
+        for(auto i : v2){
+            v1.push_back(i);
+        }
+        leftToRight = !leftToRight;
+    }
+    return v1;
+}
+
+
+// Boundary Traversal : 
+void TraverseLeft(Node* root){
+    if(root == NULL || (root -> left == NULL && root -> right ==NULL)){
+        return;
+    }
+    cout << root -> data << " ";
+    if(root -> left){
+        TraverseLeft(root -> left);
+    }else{
+        TraverseLeft(root -> right);
+    }
+}
+
+void printLeaf(Node* root){
+    if(root == NULL){
+        return;
+    }
+    printLeaf(root -> left);
+    if(root -> left == NULL && root -> right == NULL){
+        cout << root -> data << " ";
+    }
+    printLeaf(root -> right);
+}
+
+void TraverseRight(Node* root){
+    if(root == NULL || (root -> left == NULL && root -> right == NULL)){
+        return;
+    }
+    if(root -> right){
+        TraverseRight(root -> right);
+    }
+    else{
+        TraverseRight(root -> left);
+    }
+    cout << root -> data << " ";
+
+}
+void BoundaryTraversal(Node* root){
+    if(root == NULL){
+        return;
+    }
+
+    TraverseLeft(root);
+    printLeaf(root);
+    TraverseRight(root -> right);
+}
+
+
+
+// Vertical Order Traversal : 
+
+
+// TopView of Binary Tree : 
+vector < int > topView(Node* root){
+    vector < int > ans;
+    if(root == NULL){
+        return ans;
+    }
+
+    map < int, int > topNode;
+    queue < pair < Node*, int > > q;
+    q.push(make_pair(root, 0));
+    while(!q.empty()){
+        pair < Node*, int > temp = q.front();
+
+        Node* frontNode = temp.first;
+        int hd = temp.second;
+        if(topNode.find(hd) == topNode.end()){
+            topNode[hd] = frontNode -> data;
+        }
+        if(frontNode -> left){
+            q.push(make_pair(frontNode -> left, hd -1));
+        }
+        if(frontNode -> right){
+            q.push(make_pair(frontNode -> right, hd +1));
+        }
+    }
+    for(auto i : topNode){
+        ans.push_back(i.second);
+    }
+    return ans;
+}
+
+
+
+// Construct a tree from InOrder and PreOrder :
+
+// InOrder : 1,6,8,7
+// PreOrder : 1,6,7,8
+
+void createMap(int in[], map < int, int > & nodetoIndex, int n){
+    for(int i = 0; i < n; i++){
+        nodetoIndex[in[i]] = i;
+    }
+
+}
+
+Node* solve(int in[], int pre[], int &index, int inOrderStart, int inOrderEnd, int n, map < int, int > &nodeToIndex){
+    if(index >= n || inOrderStart > inOrderEnd){
+        return NULL;
+    }
+
+    int element = pre[index];
+    Node* temp = new Node(element);
+    int position = nodeToIndex[element];
+    // Recursive calls
+
+    temp -> left = solve(in, pre, index, inOrderStart, position - 1, n, nodeToIndex);
+    temp -> right = solve(in, pre, index, position + 1, inOrderEnd, n, nodeToIndex);
+    return temp;
+}
+
+
+Node* buildFromOrder(Node* root, int inOrder[], int preOrder[], int n){
+    map < int, int > nodeToIndex;
+    createMap(inOrder, nodeToIndex, n);
+    // Take index as root element
+    // Find root element position in inorder
+    int preOrderIndex = 0;
+    Node* realBinaryTree = solve(inOrder, preOrder, preOrderIndex, 0, n-1, n, nodeToIndex);
+    return realBinaryTree;
+}
+
+
+
+// Morris Traversal (Iterative InOrder Traversal) : 
+
+void MorrisTraversal(Node* root){
+    if(root == NULL){
+        return;
+    }
+    Node* current = root;
+    Node* pre;
+    while(current != NULL){
+        if(current -> left == NULL){
+            cout << current -> data << " ";
+            current = current -> right;
+        }else{
+            pre = current -> left;
+            while(pre -> right != NULL && pre -> right != current){
+                pre = pre -> right;
+            }
+            if(pre -> right == NULL){
+                pre -> right  = current;
+                current = current -> left;
+            }else{
+                pre -> right = NULL;
+                cout << current -> data << " ";
+                current = current -> right;
+            }
+        }
+    }
+}
+
+// Flatten a binary tree to Linked List : 
+
+void flatten(Node* root){
+    Node* curr = root;
+    while(curr != NULL){
+        if(curr -> left){
+            Node* pred = curr -> left;
+            while(pred -> right){
+                pred = pred -> right;
+            }
+            pred -> right = curr -> right;
+            curr -> right = curr -> left;
+            curr -> left = NULL;
+        }
+        curr = curr -> right;
+    }
+    // Alternative :
+    // curr = root;
+    // while(curr != NULL){
+    //     curr -> left = NULL;
+    //     curr = curr -> right;
+    // }
+}
+
+
+// Minimum time to Burn Tree:
+// create mapping and return target node:
+Node* createParentMapping( Node* root, int target, map < Node*, Node* > &nodeToParent){
+    Node* result = NULL;
+    queue< Node* > q;
+    q.push(root);
+    nodeToParent[root] = NULL;
+    while(!q.empty()){
+        Node* temp = q.front();
+        q.pop();
+        if(temp -> data == target){
+            result = temp;
+        }
+        if(temp -> left){
+            nodeToParent[temp -> left] = temp;
+            q.push(temp -> left);
+        }
+        if(temp -> right){
+            nodeToParent[temp -> right] = temp;
+            q.push(temp -> right);
+        }
+
+    }
+    return result;
+}
+
+
+
+
+
+int burntree(Node* root, map < Node*, Node* > nodeToParent){
+    map < Node*, bool > visited;
+    queue < Node* > q;
+    q.push(root);
+    visited[root] = true;
+    int ans = 0;
+    while(!q.empty()){
+        bool flag = 0;
+        int size = q.size();
+        for(int i = 0; i < size; i++) {
+            // process neighbouring node : 
+            Node* front = q.front();
+            q.pop();
+            if(front -> left && visited[front -> left]){
+                q.push(front -> left);
+                visited[front -> left] = true;
+                flag = true;
+            }
+            if(front -> right && visited[front -> right]){
+                flag = true;
+                q.push(front -> right);
+                visited[front -> right] = true;
+            }
+            if(nodeToParent[front] && visited[nodeToParent[front]]){
+                flag = true;
+                q.push(nodeToParent[front]);
+                visited[nodeToParent[front]] = true; 
+            }
+        }
+        if(flag == 1){
+            ans ++;
+        }
+    }
+    return ans;
+}
+
+
+int MinTime( Node* root, int target ){
+    // algo :
+    // step 1 : Create nodeToParent mapping
+    // step 2 : Find target node
+    // step 3 : Burn the tree in min time
+    
+
+    map < Node*, Node* > nodetoParent;
+    Node* targetNode = createParentMapping(root, target, nodetoParent);
+    int ans = burntree(targetNode, nodetoParent);
+    return ans;
+}
+
+
+
 int main(){
     Node* root = NULL;
     root = buildtree(root);
     cout << "Printing the level order traversal of binary tree : " << endl;
     LevelOrderTraversal(root);
+    vector < int > ans = zigZagTraversalCorrect(root);
+    for(auto i : ans){
+        cout << i << " ";
+    }
     cout << endl;
+
+    BoundaryTraversal(root);
     return 0;
 }
 
