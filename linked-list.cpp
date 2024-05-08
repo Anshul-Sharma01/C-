@@ -35,7 +35,7 @@ void LinkedList::insertEnd(int data){
     }
     Node* temp=head;
     while(temp->next!=NULL){
-        temp=temp->next;
+        temp=temp->next
     }
     temp->next=newNode;
 }

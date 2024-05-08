@@ -678,13 +678,15 @@ int main(){
     root = buildtree(root);
     cout << "Printing the level order traversal of binary tree : " << endl;
     LevelOrderTraversal(root);
-    vector < int > ans = zigZagTraversalCorrect(root);
-    for(auto i : ans){
-        cout << i << " ";
-    }
-    cout << endl;
+    cout << " Zig Zag Order Traversal : " << endl;
+    zigZagTraversal(root);
+    // vector < int > ans = zigZagTraversalCorrect(root);
+    // for(auto i : ans){
+    //     cout << i << " ";
+    // }
+    // cout << endl;
 
-    BoundaryTraversal(root);
+    // BoundaryTraversal(root);
     return 0;
 }
 
